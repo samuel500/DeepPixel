@@ -1,0 +1,57 @@
+
+<article class="media content-section">
+  <div class="media-body">
+    <div class="content-metadata">
+      <img class="rounded-circle article-img content-profile-pic" src="{{ url_for('static', filename='profile_pics/' + content[0].creator.image_file) }}">
+      <div class="content-username-datetime">
+        <a class="mr-2" href="{{ url_for('users.user_profile', username=content[0].creator.username) }}">{{ content[0].creator.username }}</a>
+        <small class="text-muted content-datetime">{{ content[0].date_added.strftime('%Y-%m-%d') }}</small>
+      </div>
+      <div class="content-library-buttons-div">
+        {% set b_app = loop_index|string ~ '-' ~ context  %}
+
+
+        <span class="badge badge-pill badge-primary">{{ content[0].content_type }}</span>
+
+
+        <button type="button" id="{{ 'star' ~ b_app }}" 
+          class="btn btn-default content-library-button {{ content[1]['star'] }}" 
+          onClick="{{ 'contentInteraction(this.id, ' ~ content[0].content_id|string ~ ')' }}" aria-label="Star">
+          <i class="fa fa-star-o" aria-hidden="true"></i>
+        </button>
+
+
+        <button type="button" id="{{ 'options' ~ b_app }}" data-toggle="dropdown"
+          class="btn btn-default options-button">
+          <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+        </button>
+          <ul class="dropdown-menu">
+            <li role="presentation" >
+              <a class="btn {% if current_user.is_authenticated %}{% if not (content[0].creator.id==current_user.id) %}{{'disabled'}}{% endif %}{% endif %}" href="#" onclick="{{ 'deleteContent(' ~ content[0].content_id|string ~ ');return false;' }}">delete</a>
+            </li>
+          </ul>
+      </div>
+    </div>
+    {% if content[0].title != 'Default' %}
+      <h3><a class="content-title" href="{{ url_for('contents.content', content_id=content[0].content_id) }}">{{ content[0].title }}</a></h3>
+    {% endif %}
+
+<!--     <div class="div1">
+
+      <img class="content-image rounded float-left img-fluid" src="{{ url_for('static', filename='site_pics/' + content[0].original_image_file) }}"/>
+
+    </div> -->
+
+    <div class="div2">
+
+      <a href="{{ url_for('contents.content', content_id=content[0].content_id) }}"><img class="content-image rounded mx-auto img-fluid" src="{{ url_for('static', filename='site_pics/' + content[0].generated_image_file) }}"/></a>
+    </div>
+
+  </div>
+</article>
+
+
+<!-- content-image  -->
+<!-- 
+
+"contentInteraction(this.id)" -->

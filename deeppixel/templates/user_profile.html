@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1 class="mb-3">{{ user.username }}'s Library</h1>
+
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="#all">Published</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#star">Favs</a>
+
+    </ul>
+
+    <div class="tab-content">
+      <div id="all" class="tab-pane active">
+        {% for content in user_content %}
+          {% set loop_index = loop.index %}
+          {% set context = 'all' %}
+          {% include 'content_layout.html' %}
+        {% endfor %}
+      </div>
+
+
+      <div id="star" class="tab-pane">
+        {% for content in library %}
+            {% set loop_index = loop.index %}
+            {% set context = 'star' %}
+            {% include 'content_layout.html' %}
+        {% endfor %}
+      </div>
+
+        
+
+    </div>
+
+{% endblock content %}
+
+
+

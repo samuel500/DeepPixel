@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+    {% set loop_index = 1 %}
+    {% set context = 'content' %}
+    {% include 'content_layout.html' %}
+
+    <div>
+    <h4>Source image</h4>
+    <img class="rounded img-fluid" src="{{ url_for('static', filename='site_pics/' + content[0].original_image_file) }}"/>
+	</div>
+
+	<br>
+	{% if content[0].content_type == 'style' %}
+		<div>
+		    <h4>Style image</h4>
+		    <img class="rounded img-fluid" src="{{ url_for('static', filename='site_pics/' + content[0].style_image_file) }}"/>
+		</div>
+	{% endif %}
+	<br>
+
+
+{% endblock content %}

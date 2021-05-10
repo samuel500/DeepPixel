@@ -1,0 +1,434 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section">
+
+        <div class="alert alert-danger" id="dream-alert">
+          Oops. Something went wrong.
+        </div>
+
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="#dream">Deep Dream</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#style">Style Transfer</a>
+      </li>
+
+    </ul>
+    <div class="tab-content">
+
+      <div id="dream" class="tab-pane active">
+
+        <h6>Title</h6>
+
+        <div class="form-group">
+
+          <input type="text" id="dream-title" class="form-control form-control-lg">
+
+        </div>
+
+
+        <h6>Content Image</h6>
+
+        <div class="form-group">
+            <input type='file' class="form-control form-control-lg" id="dream-input" />
+        </div>
+
+        <div class="form-group">
+            <img id="img1" src="#" class="rounded mx-auto img-fluid">
+        </div>
+
+
+        <div class="form-group">
+            <button type="button" id="dreamify-btn" class="btn btn-outline-info">Dreamify</button>
+
+            <span>&#9432 This may take more than a minute.</span>
+        </div>
+
+        <div id="spinner"></div> 
+
+
+        <div class="form-group">
+            <img id="dream-result" src="#" class="rounded mx-auto img-fluid">
+        </div>
+
+
+        <div class="form-group">
+            <button type="button" id="dream-publish-btn" class="btn btn-outline-info">Publish</button>
+        </div>
+
+      </form>
+      </div>
+
+    <div id="style" class="tab-pane">
+
+        <h6>Title</h6>
+
+        <div class="form-group">
+
+          <input type="text" id="style-title" class="form-control form-control-lg">
+
+        </div>
+
+        <h6>Style Image</h6>
+
+        <div class="form-group">
+            <input type='file' class="form-control form-control-lg" id="style-input" />
+        </div>
+
+        <div class="form-group">
+            <img id="style-img" src="#" class="rounded mx-auto img-fluid">
+        </div> 
+
+        <h6>Content Image</h6>
+
+        <div class="form-group">
+            <input type='file' class="form-control form-control-lg" id="to-style-input"/>
+        </div>  
+
+        <div class="form-group">
+            <img id="to-style-img" src="#" class="rounded mx-auto img-fluid">
+        </div>
+
+
+        <div class="form-group">
+            <button type="button" id="style-btn" class="btn btn-outline-info">Style</button>
+
+            <span> &#9432 This may take more than a minute.</span>
+
+        </div>
+
+
+
+
+        <div id="spinner2"></div> 
+
+        <div class="form-group">
+            <img id="style-result" src="#" class="rounded mx-auto img-fluid">
+        </div>
+
+        <div class="form-group">
+            <button type="button" id="style-publish-btn" class="btn btn-outline-info">Publish</button>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+
+
+var alert_message = document.getElementById("dream-alert");
+
+
+const spinner = document.getElementById("spinner");
+
+function showSpinner() {
+  spinner.className = "show";
+  // setTimeout(() => {
+  //   spinner.className = spinner.className.replace("show", "");
+  // }, 1000000);
+}
+function hideSpinner() {
+  spinner.classList.remove('show');
+}
+
+
+const spinner2 = document.getElementById("spinner2");
+function showSpinner2() {
+  spinner2.className = "show";
+  // setTimeout(() => {
+  //   spinner.className = spinner.className.replace("show", "");
+  // }, 1000000);
+}
+function hideSpinner2() {
+  spinner2.classList.remove('show');
+}
+
+
+
+var cur_dream_id;
+var cur_style_id;
+
+
+document.getElementById("dream-input").addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+
+        var img = document.getElementById('img1');
+        // img.onload = () => {
+        //     URL.revokeObjectURL(img.src);  // no longer needed, free memory
+        // }
+        img.src = URL.createObjectURL(this.files[0]); // set src to blob url
+
+    }
+});
+
+document.getElementById("style-input").addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+
+          var img = document.getElementById('style-img');
+
+          img.src = URL.createObjectURL(this.files[0]); 
+
+      }
+  });
+
+
+document.getElementById("to-style-input").addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+
+          var img = document.getElementById('to-style-img');
+
+          img.src = URL.createObjectURL(this.files[0]);
+
+      }
+  });
+
+document.getElementById("dreamify-btn").addEventListener("click", function() {
+
+    let doc = document.getElementById("dream-input");
+
+    this.disabled = true;
+
+    let dbtn = this;
+
+    if (alert_message.style.display === "block") {
+        alert_message.style.display = "none";
+    }
+    showSpinner();
+
+    dream_result = document.getElementById('dream-result');
+    dream_result.src = '';
+
+
+    if (doc.files && doc.files[0]){
+        var formdata = new FormData();
+        formdata.append('img1', doc.files[0]);
+
+
+        fetch('/content/upload_dream_image', {
+          method: 'POST',
+          // headers: {
+          //           'Accept': 'application/json',
+          //       },
+          body: formdata
+        }).then((response) => response.json())
+        .then(function(data){
+
+            // console.log(data);
+            cur_dream_id = data['content_id']
+            const get_data = { content_id: cur_dream_id };
+
+            fetch('/content/get_dream_image', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(get_data),
+            }).then(function(response) {
+                // console.log(response);
+
+
+                var blob = new Blob([response], {type: "image/jpeg"});
+                return response.blob();
+                
+                })
+            .then(function(data){
+
+                dream_result.src = URL.createObjectURL(data);
+                hideSpinner();
+                dbtn.disabled = false;
+
+                return data;
+            })
+             .catch(error => {
+
+                console.error(error);
+                alert_message.style.display = "block";
+                hideSpinner();
+                dbtn.disabled = false;
+
+
+            });
+
+            return data;
+        }).catch(error => {
+            console.error(error);
+            alert_message.style.display = "block";
+
+            hideSpinner();
+            dbtn.disabled = false;
+
+
+        });
+    }else{
+        console.error("No FILE");
+        alert_message.style.display = "block";
+        hideSpinner();
+        this.disabled = false;
+
+    }
+
+
+
+
+});
+
+
+
+document.getElementById("style-btn").addEventListener("click", function() {
+    
+    let style_input = document.getElementById("style-input");
+
+    let to_style_input = document.getElementById("to-style-input");
+
+    // console.log("1");
+    if (alert_message.style.display === "block") {
+        alert_message.style.display = "none";
+    }
+    showSpinner2();
+    this.disabled = true;
+    let sbtn = this;
+
+    var style_result = document.getElementById('style-result');
+
+    style_result.src = '';
+    // style_result.removeAttribute('src');
+
+
+    if (style_input.files && style_input.files[0] && to_style_input.files && to_style_input.files[0]){
+        var formdata = new FormData();
+        formdata.append('style_input', style_input.files[0]);
+        formdata.append('to_style_input', to_style_input.files[0]);
+
+            // console.log("2");
+
+        fetch('/content/upload_style_images', {
+          method: 'POST',
+          // headers: {
+          //           'Accept': 'application/json',
+          //       },
+          body: formdata
+        }).then((response) => response.json())
+        .then(function(data){
+
+            // console.log(data);
+            cur_style_id = data['content_id']
+            const get_data = { content_id: cur_style_id };
+
+
+            fetch('/content/get_style_image', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(get_data),
+
+            }).then(function(response) {
+                // console.log(response);
+
+
+                var blob = new Blob([response], {type: "image/jpeg"});
+                return response.blob();
+                
+                })
+            .then(function(data){
+
+                style_result.src = URL.createObjectURL(data);
+                hideSpinner2();
+                sbtn.disabled = false;
+
+                return data;
+            })
+             .catch(error => {
+
+                console.error(error);
+                alert_message.style.display = "block";
+                hideSpinner2();
+                sbtn.disabled = false;
+
+
+            });
+
+            return data;
+        }).catch(error => {
+            console.error(error);
+            alert_message.style.display = "block";
+            hideSpinner2();
+            sbtn.disabled = false;
+
+
+        });
+    }else{
+      console.error("No FILE");
+
+      alert_message.style.display = "block";
+      hideSpinner2();
+      sbtn.disabled = false;
+
+    }
+
+});
+
+
+
+
+document.getElementById("dream-publish-btn").addEventListener("click", function() {
+    let title = document.getElementById("dream-title").value;
+
+    publish(cur_dream_id, title);
+
+});
+
+document.getElementById("style-publish-btn").addEventListener("click", function() {
+    let title = document.getElementById("style-title").value;
+
+    publish(cur_style_id, title);
+
+});
+
+
+function publish(cur_content_id, title) {
+
+    const get_data = { content_id: cur_content_id, title: title };
+
+
+
+    fetch('/content/publish_image', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(get_data),
+
+    }).then((response) => response.json())
+        .then(function(data){
+
+ 
+        console.log(data);
+
+
+
+        if(data['message'] === 'redirect'){
+          window.location.replace(data['target']);
+        }
+        })
+    .then(function(data){
+
+        return data;
+    })
+     .catch(error => {
+
+        console.error(error);
+    });
+
+}
+
+
+</script>
+
+{% endblock content %}
+

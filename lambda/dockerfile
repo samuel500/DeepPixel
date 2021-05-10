@@ -1,0 +1,59 @@
+FROM public.ecr.aws/lambda/python:3.8
+
+# Install OS packages for Pillow-SIMD
+RUN yum -y install tar gzip zlib freetype-devel \
+    gcc \
+    ghostscript \
+    lcms2-devel \
+    libffi-devel \
+    libimagequant-devel \
+    libjpeg-devel \
+    libraqm-devel \
+    libtiff-devel \
+    libwebp-devel \
+    make \
+    openjpeg2-devel \
+    rh-python36 \
+    rh-python36-python-virtualenv \
+    sudo \
+    tcl-devel \
+    tk-devel \
+    tkinter \
+    which \
+    xorg-x11-server-Xvfb \
+    zlib-devel \
+    && yum clean all
+
+
+RUN python3.8 -m pip install tensorflow==2.3.1 # Something breaks in version 2.4.1
+
+
+RUN \
+  python3.8 -m pip install \
+  awscli \
+  boto3 \
+  pydub \
+  matplotlib \
+  tqdm \
+  imageio \
+  opencv-python \
+  scipy
+
+
+# Replace Pillow with Pillow-SIMD to take advantage of AVX2
+RUN pip uninstall -y pillow && CC="cc -mavx2" pip install -U --force-reinstall pillow-simd
+
+
+
+COPY *.py ./
+
+ADD squeezenet_weights ./squeezenet_weights
+
+#ADD tmp /tmp
+
+RUN mkdir model
+
+
+CMD ["dream_handler.lambda_handler"]
+
+

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+
+    {% if title %}
+        <title>DeepPixel - {{ title }}</title>
+    {% else %}
+        <title>DeepPixel</title>
+    {% endif %}
+</head>
+<body>
+    <header class="site-header">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-steel fixed-top">
+        <div class="container">
+          <a class="navbar-brand mr-4" href="/">DeepPixel</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarToggle">
+            <div class="navbar-nav mr-auto">
+              <a class="nav-item nav-link" href="{{ url_for('main.home') }}">Home</a>
+              <a class="nav-item nav-link" href="{{ url_for('main.about') }}">About</a>
+            </div>
+            <!-- Navbar Right Side -->
+            <div class="navbar-nav">
+              {% if current_user.is_authenticated %}
+                <a class="nav-item nav-link" href="{{ url_for('contents.add_content') }}">Add Content</a>
+                <a class="nav-item nav-link" href="{{ url_for('users.account') }}">Account</a>
+                <a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Sign out <i class="fa fa-sign-out" aria-hidden="true"></i>
+</a>
+              {% else %}
+                <a class="nav-item nav-link" href="{{ url_for('users.login') }}">Login</a>
+                <a class="nav-item nav-link" href="{{ url_for('users.register') }}">Register</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main role="main" class="container">
+      <div class="row">
+        <div class="col-md-8">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </main>
+
+
+
+
+    
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<script>
+
+
+function contentInteraction(buttonId, contentId)
+{
+  var button = document.getElementById(buttonId);
+  var request = new XMLHttpRequest();
+  request.onreadystatechange = function()
+  {
+    if (request.readyState == 4)
+    {
+      if (request.status != 200)
+      {
+        //if server returns error, revert button backround color
+        if (button.classList.contains('content-library-button-unselected'))
+        {
+          button.classList.remove('content-library-button-unselected');
+          button.classList.add('content-library-button-selected');
+        }
+        else
+        {
+          button.classList.remove('content-library-button-selected');
+          button.classList.add('content-library-button-unselected');
+        }
+      }
+      else
+      {
+
+        var response = JSON.parse(request.responseText);
+        if(response['message'] === 'redirect'){
+          window.location.replace(response['target']);
+        }
+        else {
+          for(var bName in response['interactions']){
+            currButton = document.getElementById(bName+response['button_context'])
+            if (!currButton.classList.contains(response['interactions'][bName])){
+              currButton.classList.remove('content-library-button-selected');
+              currButton.classList.remove('content-library-button-unselected');
+              currButton.classList.add(response['interactions'][bName]);
+            }
+
+
+          }
+        }
+      }
+    }
+  }
+
+  if (button.classList.contains('content-library-button-unselected'))
+  {
+    button.classList.remove('content-library-button-unselected');
+    button.classList.add('content-library-button-selected');
+  }
+  else
+  {
+    button.classList.remove('content-library-button-selected');
+    button.classList.add('content-library-button-unselected');
+  }
+
+  request.open('POST', '/content/user_interaction');
+  request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  var interactionInfo = 'button_id='+buttonId+'&content_id='+contentId ;
+  request.send(interactionInfo);
+
+  return false;
+}
+
+
+function deleteContent(contentId)
+{
+  var request = new XMLHttpRequest();
+  request.onreadystatechange = function()
+  {
+    if (request.readyState == 4)
+    {
+      if (request.status != 200)
+      {
+
+      }
+      else
+      {
+        var response = JSON.parse(request.responseText)
+        if(response['message'] === 'redirect'){
+          window.location.replace(response['target']);
+        }
+        else {
+          var response = JSON.parse(request.responseText);
+          if(response['message'] === 'redirect'){
+            window.location.reload(true);
+         }
+
+        }
+      }
+    }
+  }
+
+  request.open('POST', '/content/delete');
+  request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  var interactionInfo = 'content_id='+contentId;
+  request.send(interactionInfo);
+
+  return false;
+
+}
+
+
+</script>
+
+</body>
+</html>
