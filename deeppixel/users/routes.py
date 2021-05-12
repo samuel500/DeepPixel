@@ -75,7 +75,7 @@ def account():
 
 
 @users.route("/reset_password", methods=['GET', 'POST'])
-def reset_request():
+def reset_password():
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     form = RequestResetForm()

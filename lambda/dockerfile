@@ -1,5 +1,7 @@
 FROM public.ecr.aws/lambda/python:3.8
 
+MAINTAINER SAMUEL KNOCHE
+
 # Install OS packages for Pillow-SIMD
 RUN yum -y install tar gzip zlib freetype-devel \
     gcc \
@@ -49,7 +51,6 @@ COPY *.py ./
 
 ADD squeezenet_weights ./squeezenet_weights
 
-#ADD tmp /tmp
 
 RUN mkdir model
 

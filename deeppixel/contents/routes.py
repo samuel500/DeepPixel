@@ -302,7 +302,7 @@ def content_user_interaction():
 
 
 
-@contents.route("/content/<int:content_id>")
+@contents.route("/content/<string:content_id>")
 def content(content_id):
     content = Content.query.get_or_404(content_id)
     if not content.published:
@@ -325,7 +325,7 @@ def delete_content():
     if not current_user.is_authenticated:
         return jsonify(message="redirect", target=url_for('users.login'))
 
-    content_id = int(request.form['content_id'])
+    content_id = request.form['content_id']
     content = Content.query.get_or_404(content_id)
     if content.creator != current_user:
         abort(403)
