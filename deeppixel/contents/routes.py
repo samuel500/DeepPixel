@@ -277,7 +277,7 @@ def content_user_interaction():
     button_id = request.form['button_id'].split('-')[0]
     button_id = "".join([x for x in button_id if not x.isdigit()])
     button_context = request.form['button_id'][len(button_id):]
-    content_id = int(request.form['content_id'])
+    content_id = request.form['content_id']
 
     record = UserLibrary.query.filter(and_(UserLibrary.content_id==content_id, UserLibrary.user_id==current_user.id)).first()
 

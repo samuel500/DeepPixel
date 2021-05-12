@@ -16,7 +16,7 @@
 
         <button type="button" id="{{ 'star' ~ b_app }}" 
           class="btn btn-default content-library-button {{ content[1]['star'] }}" 
-          onClick="{{ 'contentInteraction(this.id, ' ~ content[0].content_id|string ~ ')' }}" aria-label="Star">
+          onClick="{{ 'contentInteraction(this.id, "' ~ content[0].content_id|string ~ '")' }}" aria-label="Star">
           <i class="fa fa-star-o" aria-hidden="true"></i>
         </button>
 
@@ -27,7 +27,7 @@
         </button>
           <ul class="dropdown-menu">
             <li role="presentation" >
-              <a class="btn {% if current_user.is_authenticated %}{% if not (content[0].creator.id==current_user.id) %}{{'disabled'}}{% endif %}{% endif %}" href="#" onclick="{{ 'deleteContent(' ~ content[0].content_id|string ~ ');return false;' }}">delete</a>
+              <a class="btn {% if current_user.is_authenticated %}{% if not (content[0].creator.id==current_user.id) %}{{'disabled'}}{% endif %}{% endif %}" href="#" onclick="{{ 'deleteContent("' ~ content[0].content_id|string ~ '");return false;' }}">delete</a>
             </li>
           </ul>
       </div>
