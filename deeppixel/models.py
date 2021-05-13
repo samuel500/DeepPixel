@@ -26,6 +26,7 @@ class UserLibrary(db.Model):
         return f"UserLibrary item('content_id:{self.content_id}', 'user_id:{self.user_id}')"
 
 
+
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
@@ -61,6 +62,7 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+
 
 
 class Content(db.Model):
