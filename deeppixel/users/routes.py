@@ -119,9 +119,7 @@ def user_profile(username):
             buttons_info.append(buttons_list)
 
 
-
     lib_content = zip(library_content, buttons_info)
-
 
 
     user_content = Content.query.order_by(Content.date_added.desc()).filter(Content.user_id==user.id).filter(Content.published.is_(True)).all()

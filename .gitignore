@@ -3,7 +3,6 @@ __pycache__/
 todo
 
 
-Config.py
 
 *.db
 
@@ -14,6 +13,8 @@ Config.py
 site_pics/
 tests/
 dream_utils/
+
+*.log
 
 *.py[cod]
 

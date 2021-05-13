@@ -76,7 +76,7 @@ def upload_dream_image():
 
     im = Image.open(io.BytesIO(new_img))
 
-    ########
+    ######## For local debugging
 
     # from deeppixel.dream_utils.dreamer import dreamify
     # new_img = dreamify(os.path.join(current_app.root_path, 'static/site_pics', uploaded_img))
@@ -121,26 +121,6 @@ def get_dream_image():
     f = send_file(filename, mimetype='image/jpeg', cache_timeout=0)
     print(f)
     return f
-
-
-
-# @contents.route("/content/get_style_image", methods=['POST'])
-# @login_required
-# def get_style_image():
-
-#     content_id = request.json['content_id']
-
-
-#     content = Content.query.get_or_404(content_id)
-
-
-#     filename = os.path.join(current_app.root_path, 'static/site_pics', content.generated_image_file)
-
-#     f = send_file(filename, mimetype='image/jpeg', cache_timeout=0)
-#     return f
-
-
-
 
 
 
